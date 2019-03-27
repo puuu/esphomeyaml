@@ -1167,6 +1167,69 @@ cover:
           state: CLOSED
     assumed_state: no
 
+climatedevice:
+  - platform: template
+    name: "Template Climate Device"
+    id: template_climatedevice
+    accuracy_decimals: 1
+    update_interval: 60s
+    optimistic: true
+    target_temperature:
+      accuracy_decimals: 1
+      intial: 21
+      step_size: 0.5
+      min: 10
+      max: 30
+    control_action:
+      - lambda: "return;"
+      - climatedevice.publish:
+          id: template_climatedevice
+          mode: 'off'
+          target_temperature: 22
+      - climatedevice.publish:
+          id: template_climatedevice
+#          mode: !lambda "return x.mode;"
+          target_temperature: !lambda "return x.target_temperature;"
+    error_value_action:
+      - climatedevice.publish:
+          id: template_climatedevice
+          mode: 'off'
+          target_temperature: 22
+      - climatedevice.control:
+          id: template_climatedevice
+          mode: heat
+          target_temperature: !lambda "return 22;"
+      - climatedevice.current_temperature:
+          id: template_climatedevice
+          current_temperature: !lambda "return x + 20;"
+    has_current_temperature: yes
+    modes:
+      - auto
+      - cool
+      - heat
+#    mode_lambda: |-
+#      if (id(template_climate).state.mode == climatedevice::CLIMATEDEVICE_MODE_OFF)
+#        return {};
+#      if (id(binary_sensor1).state) {
+#        return climatedevice::CLIMATEDEVICE_MODE_HEAT;
+#      } else {
+#        return climatedevice::CLIMATEDEVICE_MODE_AUTO;
+#      }
+    target_temperature_lambda: |-
+      return id(my_sensor).state;
+  - platform: thermostat
+    name: "Thermostat cooling"
+    output: gpio_26
+    hysteresis: 0.3
+    cooling: true
+    min_cycle_duration: 30s
+  - platform: thermostat
+    name: "Thermostat heating"
+    output: gpio_26
+    hysteresis:
+      hot: 0.5
+      cold: 0.2
+
 debug:
 
 pcf8574:
