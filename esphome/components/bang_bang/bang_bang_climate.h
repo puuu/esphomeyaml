@@ -31,6 +31,7 @@ class BangBangClimate : public climate::Climate, public Component {
   void set_supports_heat(bool supports_heat);
   void set_normal_config(const BangBangClimateTargetTempConfig &normal_config);
   void set_away_config(const BangBangClimateTargetTempConfig &away_config);
+  void set_hysteresis(float hysteresis) { this->hysteresis_ = std::abs(hysteresis); }
 
  protected:
   /// Override control to change settings of the climate device.
@@ -45,6 +46,8 @@ class BangBangClimate : public climate::Climate, public Component {
 
   /// Switch the climate device to the given climate mode.
   void switch_to_action_(climate::ClimateAction action);
+
+  bool has_two_point_target_temperature_();
 
   /// The sensor used for getting the current temperature
   sensor::Sensor *sensor_{nullptr};
@@ -79,6 +82,7 @@ class BangBangClimate : public climate::Climate, public Component {
   BangBangClimateTargetTempConfig normal_config_{};
   bool supports_away_{false};
   BangBangClimateTargetTempConfig away_config_{};
+  float hysteresis_{0};
 };
 
 }  // namespace bang_bang
