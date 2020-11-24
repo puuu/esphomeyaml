@@ -70,6 +70,25 @@ void SHT3XDComponent::update() {
     this->status_clear_warning();
   });
 }
+void SHT3XDComponent::set_heater(bool state) {
+  if (state) {
+     this->write_command_(SHT3XD_COMMAND_HEATER_ENABLE);
+  } else {
+     this->write_command_(SHT3XD_COMMAND_HEATER_DISABLE);
+  }
+}
+bool SHT3XDComponent::get_heater() {
+  uint16_t data[1];
+  if (!this->write_command_(SHT3XD_COMMAND_READ_STATUS)) {
+    this->status_set_warning();
+    return false;
+  }
+  if (!this->read_data_(data, 1)) {
+    this->status_set_warning();
+    return false;
+  }
+  return data[0] & 0x0d;
+}
 
 bool SHT3XDComponent::write_command_(uint16_t command) {
   // Warning ugly, trick the I2Ccomponent base by setting register to the first 8 bit.
